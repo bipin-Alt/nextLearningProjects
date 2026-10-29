@@ -3,34 +3,46 @@ import bcrypt from "bcryptjs";
 import { prisma } from "../prisma";
 import { createSession, destroySession } from "../session";
 import { redirect } from "next/navigation";
+import{z} from "zod"
 
+//Register schema using zod //
+const RegisterSchema = z.object({
+  name:z.string().min(1, "Name is required"),
+  email:z.email("Invalid email address"),
+  password:z.string()
+  .min(6,"Password must be atleast more than 6 characters"),
+  //.regex(/[A-Z]/, "Password must contain atleast a Uppercase letter")
+  //.regex(/[a-z]/,"Password must contain atleast a lowercase letter")
+  //.regex(/[0-9]/,"Password must contain")
+  //.regex(/[^A-Za-z0-9]/, "Password must contain atleast a special character(eg: &,@,$....)"),
 
+  confirmPassword: z.string(),
+}).refine((data)=> data.password === data.confirmPassword,{ 
+   message:"Password didn't match",
+   path:["confirmPassword"]
+});
 
 //Registration function
-export async function HandleRegistration(formData) {
+export async function HandleRegistration(formData: FormData) {
   try {
-    //selecting elements
-    const name = formData.get("name");
-    const email = formData.get("email");
-    const password = formData.get("password");
-    const confirmPassword = formData.get("confirmPassword")
+    //userDataFromForm converted to js object from a messy raw data//
+    const userDataFromForm = Object.fromEntries(formData); 
+    const result = RegisterSchema.safeParse(userDataFromForm); // using safeparse to tell zod  avoid throw an error  instead it returns an object//
+     // result returns like this return { success: true or false, error}  
+    if(!result.success){ // if the result success property is falsy//
+        return {
+          status:400,
+          message: result.error.issues[0].message
+        }
+      }
 
-    if (!email || !password) {  //checking if the email and password is empty
-      return { status:400, message:"Please enter your credentials!! "};
-    }
-
+    const{name, email, password} = result.data;
+    
+ 
    const existingUser = await prisma.user.findUnique({   //checking if the user already exists 
     where :{email},
    });
-
-   //for form validation of the passwords didn't match 
-   if(password !== confirmPassword) {
-    return {
-      status:400,
-      message:"confirm password should match  to your password."
-    }
-   }
-
+   
   // checking if the user with same email exists already
    if(existingUser){
     console.log("Your Account exists already login to access it.")
@@ -67,22 +79,29 @@ export async function HandleRegistration(formData) {
   }
 }
 
+const loginSchema = z.object({
+  email: z.string("Invalid Email Address"),
+  password:z.string()
+});
 // Login Authentication Function
-export async function HandleLogin(formData) {
-  const email = formData.get("email");
-  const password = formData.get("password");
-
-  //check if the email and password//
-  if(!email || !password) {
-    return {
+export async function HandleLogin(formData: FormData) {
+const userLoginDataForm = Object.fromEntries(formData);  
+const result = loginSchema.safeParse(userLoginDataForm); // match the user input to the login schema//
+  if(!result.success){
+    console.log(result.error.issues[0].message);
+    return{
       status:400,
-      message:"Please enter the email and password",
+      message: result.error.issues[0].message
     }
   }
+
+const {email, password} = result.data;
+
   // find the user with the email that is unique
   const user = await prisma.user.findUnique({
     where:{email}
   })
+
   //if there isn't any user//
   if(!user){
    console.log("Can't find the user");
@@ -91,6 +110,8 @@ export async function HandleLogin(formData) {
       message:"Invalid email or password",
     }
   }
+
+  console.log(user);
  //compare the password entered and the hased password 
   const isPasswordValid = await bcrypt.compare(password, user.password);
   console.log(isPasswordValid);
@@ -104,7 +125,6 @@ export async function HandleLogin(formData) {
   //if the password is valid then we then create a session for it //
   await createSession(user.id);
 
-
   if(user.role === "ADMIN") {
     redirect("/Admin");
   }else{
@@ -112,8 +132,6 @@ export async function HandleLogin(formData) {
   }
   
 }
-
-
 // This function handles logout when the user logs out of the current session
 export async function handleLogout(){
   await destroySession();

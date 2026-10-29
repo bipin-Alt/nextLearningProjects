@@ -5,7 +5,7 @@ import { prisma } from "./prisma";
 
 const SESSION_COOKIE_NAME = "session_id";
 //This function is responsible for hashing the session token because even if the database is leaked then the hashed session will found//
-function hashSessionToken ( token ){
+function hashSessionToken ( token:string ){
     return crypto.createHash("sha256").update(token).digest("hex");
 }
 
@@ -22,7 +22,14 @@ async function cleanExpiredSessions(){
 
  
 // Function to create a new session
-export async function createSession(userId){
+export async function createSession(userId : string){
+
+    if(userId){
+        console.log("The User ID is : ", userId);
+    }else{
+        console.log("USER ID INVALID");
+    }
+    
   //wait for expired sessions to be deleted//
      await cleanExpiredSessions();
     //Generate a random secure session token

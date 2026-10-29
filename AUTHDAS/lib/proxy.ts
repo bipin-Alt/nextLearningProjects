@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getCurrentSession } from "./session";
 
 
@@ -7,7 +7,7 @@ import { getCurrentSession } from "./session";
 const protectedRoutes = ['/Dashboard', '/Admin'];
 const publicRoutes  = ['/Login', '/Register'];
 
-export default async function proxy(request) {
+export default async function proxy(request : NextRequest) {
     //checking if the current route is protected or public//
     const path = request.nextUrl.pathname;
     console.log(path);
@@ -25,10 +25,9 @@ export default async function proxy(request) {
     }
 
     //Redirect to dashboard if the user is authenticated
-    if(isPublicRoute && session?.user.id && !request.nextUrl.pathname.startswith("/dashboard")){
+    if(isPublicRoute && session?.user.id && !request.nextUrl.pathname.startsWith("/dashboard")){
         return NextResponse.redirect(new URL('/Dashboard', request.nextUrl))
     }
-
     return NextResponse.next();
 }
 
@@ -36,7 +35,5 @@ export const config = {
       matcher: [
     "/Dashboard/:path*",
     "/Admin/:path*",
-    "/Login",
-    "/Register",
   ],
 }
