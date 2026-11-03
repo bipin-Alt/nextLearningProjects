@@ -31,6 +31,7 @@ export default function Navbar() {
         </div>
 
         {/* Auth Buttons */}
+        
         <div className="flex items-center gap-3">
           <Link
             href="/Register"

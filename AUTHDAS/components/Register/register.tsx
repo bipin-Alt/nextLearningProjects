@@ -1,7 +1,6 @@
-"use client";
-
-import React from "react";
+"use client"
 import Link from "next/link";
+import { FaGithub, FaGoogle, FaEye, FaEyeSlash } from "react-icons/fa";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -14,42 +13,60 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { FaGithub, FaGoogle, FaEye, FaEyeSlash } from "react-icons/fa";
-import { HandleLogin } from "@/lib/actions/Auth";
+import { HandleRegistration } from "@/lib/actions/Auth";
+import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { togglePasswordShow } from "@/lib/features/uiSlice/uiSlice";
-import { useSelector } from "react-redux";
+import { RootState } from "@/lib/store";
+import { useActionState } from "react";
 
 
+export default function Register() {
 
-export default function Login() {
 
-const dispatch = useDispatch();
-const viewPassword = useSelector((state)=> state.ui.showPassword);
-
+  const dispatch = useDispatch();
+ const[state, FormAction, isPending] = useActionState(HandleRegistration, null);
+  const showPassword = useSelector((state : RootState ) => state.ui.showPassword)
   return (
     <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4">
       <Card className="w-full max-w-md shadow-sm">
+
+        {/* Header */}
         <CardHeader className="space-y-2 text-center">
           <CardTitle className="text-2xl font-bold">
-            Welcome back
+            Create an account
           </CardTitle>
 
           <CardDescription>
-            Enter your email and password to login to your account.
+            Enter your information below to create your account.
           </CardDescription>
         </CardHeader>
 
+        {/* Form */}
         <CardContent>
-          <form className="space-y-6" action={HandleLogin}>
+          <form className="space-y-6" action={FormAction}>
+
+            {/* Name */}
+            <div className="grid gap-2">
+              <Label htmlFor="name">Name</Label>
+
+              <Input
+                id="name"
+                name="name"
+                type="text"
+                placeholder="Enter your name"
+                required
+              />
+            </div>
+
             {/* Email */}
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
 
               <Input
                 id="email"
-                type="email"
                 name="email"
+                type="email"
                 placeholder="m@example.com"
                 required
               />
@@ -57,40 +74,59 @@ const viewPassword = useSelector((state)=> state.ui.showPassword);
 
             {/* Password */}
             <div className="grid gap-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="password">Password</Label>
-
-                <Link
-                  href="/forgot-password"
-                  className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-                >
-                  Forgot password?
-                </Link>
-              </div>
+              <Label htmlFor="password">Password</Label>
 
               <div className="relative">
                 <Input
-                  name="password"
                   id="password"
-                  type= {viewPassword? "text":"password"}
+                  name="password"
+                  type={showPassword?"text":"password"}
+                  placeholder="Enter your password"
                   required
                 />
                 <button
-                onClick={()=>{dispatch(togglePasswordShow())}}
+                  onClick={()=>{dispatch(togglePasswordShow())}}
                   type="button"
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 >
-                 { 
-                   viewPassword ?
-                  <FaEye className="h-4 w-4" /> : <FaEyeSlash className="h-4 w-4"/>
-                }
+                  {
+                    showPassword ? <FaEyeSlash  className="h-4 w-4"/> : <FaEye className="h-4 w-4" />
+                  }
+                  
                 </button>
               </div>
             </div>
 
-            {/* Login */}
+            {/* Confirm Password */}
+            <div className="grid gap-2">
+              <Label htmlFor="confirmPassword">
+                Confirm Password
+              </Label>
+
+              <div className="relative">
+                <Input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type={showPassword?"text":"password"}
+                  placeholder="Confirm your password"
+                  required
+                />
+                 <button
+                  onClick={()=>{dispatch(togglePasswordShow())}}
+                  type="button"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  {
+                    showPassword ? <FaEyeSlash  className="h-4 w-4"/> : <FaEye className="h-4 w-4" />
+                  }
+                  
+                </button>
+              </div>
+            </div>
+
+            {/* Register */}
             <Button type="submit" className="w-full">
-              Login
+              Register
             </Button>
           </form>
 
@@ -115,6 +151,7 @@ const viewPassword = useSelector((state)=> state.ui.showPassword);
             Continue with Google
           </Button>
 
+          {/* GitHub */}
           <Button
             type="button"
             variant="outline"
@@ -125,17 +162,19 @@ const viewPassword = useSelector((state)=> state.ui.showPassword);
           </Button>
         </CardContent>
 
+        {/* Footer */}
         <CardFooter className="justify-center">
           <p className="text-sm text-muted-foreground">
-            Does not have an account?
+            Already have an account?{" "}
             <Link
-              href="/Register"
+              href="/Login"
               className="font-medium text-foreground underline-offset-4 hover:underline"
             >
-              Register
+              Login
             </Link>
           </p>
         </CardFooter>
+
       </Card>
     </div>
   );

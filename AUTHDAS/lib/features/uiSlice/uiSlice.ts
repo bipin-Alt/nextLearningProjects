@@ -1,6 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
-const initialState = {
+interface  CounterState {
+  showPassword : boolean,
+  isEditing: boolean
+}
+const initialState : CounterState = {
   showPassword: false,
+  isEditing: false,
 }
 const showPassSlice = createSlice({
   name: "pass",
@@ -13,3 +18,4 @@ const showPassSlice = createSlice({
 })
 export const { togglePasswordShow } = showPassSlice.actions;
 export default showPassSlice.reducer;
+

@@ -1,9 +1,13 @@
 "use client"
-import React from 'react';
+import Link from 'next/link';
 import { Button } from '../ui/button';
 import { handleLogout } from '@/lib/actions/Auth';
 
-export default function UserDashboard({userName, userEmail}) {
+interface UserDashboardProps {
+    userName: string | null,
+    userEmail:string,
+}
+export default function UserDashboard({userName, userEmail}:UserDashboardProps) {
     return (
         <div>
             <p>Hello, {userName}</p>
@@ -13,6 +17,7 @@ export default function UserDashboard({userName, userEmail}) {
             <form action={handleLogout}>
             <Button type="submit">Logout</Button>
             </form>
+            <Link href={"/Dashboard/Profile"} type='submit'><Button>View Profile</Button></Link>
         </div>
     );
 } 

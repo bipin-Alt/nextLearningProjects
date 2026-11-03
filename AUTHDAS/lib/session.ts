@@ -23,7 +23,6 @@ async function cleanExpiredSessions(){
  
 // Function to create a new session
 export async function createSession(userId : string){
-
     if(userId){
         console.log("The User ID is : ", userId);
     }else{

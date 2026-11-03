@@ -3,8 +3,12 @@ import React from 'react';
 import { Button } from '../ui/button';
 import { handleLogout } from '@/lib/actions/Auth';
 
+interface AdminProps{
+    adminName: string | null,
+    adminEmail: string
+}
 
-export default function AdminTable({adminName, adminEmail}) {
+export default function AdminTable({adminName, adminEmail}: AdminProps) {
     return (
         <div> 
             <p>Hello {adminName}</p>
@@ -12,7 +16,7 @@ export default function AdminTable({adminName, adminEmail}) {
             <p> This is the admin table.</p>
             <p>Wanna logout ?</p>
             <form action={handleLogout}>
-            <Button type="submit">Logout</Button>
+            <Button type="submit" >Logout</Button>
             </form>
         </div>
     );

@@ -1,6 +1,7 @@
-"use client"
+"use client";
+
+import React, { useActionState } from "react";
 import Link from "next/link";
-import { FaGithub, FaGoogle, FaEye, FaEyeSlash } from "react-icons/fa";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -13,56 +14,44 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { HandleRegistration } from "@/lib/actions/Auth";
-import { useSelector } from "react-redux";
+import { FaGithub, FaGoogle, FaEye, FaEyeSlash } from "react-icons/fa";
+import { HandleLogin } from "@/lib/actions/Auth";
 import { useDispatch } from "react-redux";
 import { togglePasswordShow } from "@/lib/features/uiSlice/uiSlice";
+import { useAppSelector } from "@/lib/hooks";
 
 
 
-export default function Register() {
-  const dispatch = useDispatch();
-  const showPassword = useSelector(state=> state.ui.showPassword);
+export default function Login() {
+
+const dispatch = useDispatch();
+
+const viewPassword = useAppSelector((state ) => state.ui.showPassword );
+
+const[state, formAction, isPending] = useActionState(HandleLogin, null);
+
   return (
     <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4">
       <Card className="w-full max-w-md shadow-sm">
-
-        {/* Header */}
         <CardHeader className="space-y-2 text-center">
           <CardTitle className="text-2xl font-bold">
-            Create an account
+            Welcome back
           </CardTitle>
-
           <CardDescription>
-            Enter your information below to create your account.
+            Enter your email and password to login to your account.
           </CardDescription>
         </CardHeader>
-
-        {/* Form */}
+        
         <CardContent>
-          <form className="space-y-6" action={HandleRegistration}>
-
-            {/* Name */}
-            <div className="grid gap-2">
-              <Label htmlFor="name">Name</Label>
-
-              <Input
-                id="name"
-                name="name"
-                type="text"
-                placeholder="Enter your name"
-                required
-              />
-            </div>
-
+          <form className="space-y-6" action={formAction}>
             {/* Email */}
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
 
               <Input
                 id="email"
-                name="email"
                 type="email"
+                name="email"
                 placeholder="m@example.com"
                 required
               />
@@ -70,59 +59,40 @@ export default function Register() {
 
             {/* Password */}
             <div className="grid gap-2">
-              <Label htmlFor="password">Password</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password">Password</Label>
+
+                <Link
+                  href="/forgot-password"
+                  className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+                >
+                  Forgot password?
+                </Link>
+              </div>
 
               <div className="relative">
                 <Input
-                  id="password"
                   name="password"
-                  type={showPassword?"text":"password"}
-                  placeholder="Enter your password"
+                  id="password"
+                  type= {viewPassword? "text":"password"}
                   required
                 />
                 <button
-                  onClick={()=>{dispatch(togglePasswordShow())}}
+                onClick={()=>{dispatch(togglePasswordShow())}}
                   type="button"
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 >
-                  {
-                    showPassword ? <FaEyeSlash  className="h-4 w-4"/> : <FaEye className="h-4 w-4" />
-                  }
-                  
+                 { 
+                   viewPassword ?
+                  <FaEye className="h-4 w-4" /> : <FaEyeSlash className="h-4 w-4"/>
+                }
                 </button>
               </div>
             </div>
 
-            {/* Confirm Password */}
-            <div className="grid gap-2">
-              <Label htmlFor="confirmPassword">
-                Confirm Password
-              </Label>
-
-              <div className="relative">
-                <Input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type={showPassword?"text":"password"}
-                  placeholder="Confirm your password"
-                  required
-                />
-                 <button
-                  onClick={()=>{dispatch(togglePasswordShow())}}
-                  type="button"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                >
-                  {
-                    showPassword ? <FaEyeSlash  className="h-4 w-4"/> : <FaEye className="h-4 w-4" />
-                  }
-                  
-                </button>
-              </div>
-            </div>
-
-            {/* Register */}
-            <Button type="submit" className="w-full">
-              Register
+            {/* Login */}
+            <Button type="submit" className="w-full" disabled={isPending}>
+              {isPending? "Logging in..." : "Login"}
             </Button>
           </form>
 
@@ -147,7 +117,6 @@ export default function Register() {
             Continue with Google
           </Button>
 
-          {/* GitHub */}
           <Button
             type="button"
             variant="outline"
@@ -158,19 +127,17 @@ export default function Register() {
           </Button>
         </CardContent>
 
-        {/* Footer */}
         <CardFooter className="justify-center">
           <p className="text-sm text-muted-foreground">
-            Already have an account?{" "}
+            Does not have an account?
             <Link
-              href="/Login"
+              href="/Register"
               className="font-medium text-foreground underline-offset-4 hover:underline"
             >
-              Login
+              Register
             </Link>
           </p>
         </CardFooter>
-
       </Card>
     </div>
   );

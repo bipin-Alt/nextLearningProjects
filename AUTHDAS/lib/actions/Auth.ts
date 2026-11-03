@@ -23,7 +23,7 @@ const RegisterSchema = z.object({
 });
 
 //Registration function
-export async function HandleRegistration(formData: FormData) {
+export async function HandleRegistration(prevState:any, formData: FormData) {
   try {
     //userDataFromForm converted to js object from a messy raw data//
     const userDataFromForm = Object.fromEntries(formData); 
@@ -84,10 +84,11 @@ const loginSchema = z.object({
   password:z.string()
 });
 // Login Authentication Function
-export async function HandleLogin(formData: FormData) {
-const userLoginDataForm = Object.fromEntries(formData);  
+export async function HandleLogin( prevState: any , formData: FormData) {
+const userLoginDataForm = Object.fromEntries(formData);  // Converting the formData in proper JS Object//
 const result = loginSchema.safeParse(userLoginDataForm); // match the user input to the login schema//
-  if(!result.success){
+// check the result's success status bool//
+if(!result.success){
     console.log(result.error.issues[0].message);
     return{
       status:400,
@@ -114,13 +115,12 @@ const {email, password} = result.data;
   console.log(user);
  //compare the password entered and the hased password 
   const isPasswordValid = await bcrypt.compare(password, user.password);
-  console.log(isPasswordValid);
-  //check if the password is invalid
-  if(!isPasswordValid){
+
+  if(!isPasswordValid) {
     return {
-      status : 401,
-      message:"Invalid email or password"
-    } 
+      success: false,
+      message: "The email address or password you entered is incorrect."
+    }
   }
   //if the password is valid then we then create a session for it //
   await createSession(user.id);
