@@ -63,7 +63,7 @@ const[state, formAction, isPending] = useActionState(HandleLogin, null);
                 <Label htmlFor="password">Password</Label>
 
                 <Link
-                  href="/forgot-password"
+                  href={""}
                   className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
                 >
                   Forgot password?
